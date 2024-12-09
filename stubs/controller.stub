@@ -1,0 +1,65 @@
+<?php
+
+namespace {{ namespace }};
+
+use Inertia\Inertia;
+use Illuminate\Support\Str;
+use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Redirect;
+use Facades\App\Services\{{ class }}Service;
+
+class {{ class }}Controller extends Controller
+{
+    protected $routeName = '';
+	public function __construct()
+    {
+        $this->routeName = Str::camel('{{ class }}');
+        $this->implementMethodPermission('{{ class }}');
+    }
+
+    public function index()
+    {
+		return Inertia::render(
+			'',
+			[
+				'breadcrumb' => getBreadcrumb() ?: readable('{{ class }}'),
+				'userCan' => [
+                    'create' => request()->user()->hasPermissionTo('{{ class }}-create'),
+                    'edit' => request()->user()->hasPermissionTo('{{ class }}-edit'),
+                    'delete' => request()->user()->hasPermissionTo('{{ class }}-delete'),
+                ]
+			]
+		);
+    }
+
+    public function store()
+    {
+		try {
+           {{ class }}Service::add();
+        } catch (\Exception $e) {
+            return Redirect::route($this->routeName.'.index')->with('error', $e->getMessage());
+        }
+        return Redirect::route($this->routeName.'.index')->with('success', ' Added Successfully');
+    }
+
+    public function update(int $id)
+    {
+		 try {
+           {{ class }}Service::update($id);
+        } catch (\Exception $e) {
+            return Redirect::route($this->routeName.'.index')->with('error', $e->getMessage());
+        }
+        return Redirect::route($this->routeName.'.index')->with('success', ' Added Successfully');
+    }
+
+    public function destroy(int $id)
+    {
+		 try {
+            {{ class }}Service::remove($id);
+        } catch (\Exception $e) {
+            return Redirect::route($this->routeName.'.index')->with('error', $e->getMessage());
+        }
+        return Redirect::route($this->routeName.'.index')->with('success', ' Deleted Successfully');
+    }
+}
